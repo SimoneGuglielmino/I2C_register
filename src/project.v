@@ -34,10 +34,11 @@ module  tt_um_i2c_regf(
   wire [7:0] out_reg_array;
   wire regf_req;
   wire regf_rw;
-
   assign uo_out = out_reg_array;
+  assign uio_out[7:1] = 0;
+  assign uio_oe[7:1] = 0;
   // List all unused inputs to prevent warnings
-  wire _unused = &{ena, ui_in, uo_out,uio_in[7:1],uio_out[7:1],uio_oe[7:1],1'b0};
+  wire _unused = &{ena, ui_in, uo_out,uio_in[7:1],1'b0};
 
   // Instantiate i2c_slave_controller
   i2c_slave_controller #(

@@ -7,7 +7,7 @@ from regf_driver import regf_driver
 
 # Parameters
 _I2C_SLAVE_ADDR_ = int(0b0101010)
-_MAX_ITR_NBR = 10000
+_MAX_ITR_NBR = 500
 _ADDR_WIDTH = 4
 _DATA_WIDTH = 8
 

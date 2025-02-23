@@ -140,7 +140,7 @@ module i2c_slave_controller #(
   end
 
   // Main IF State Machine
-  always @(negedge scl)
+  always @(negedge rst or negedge scl)
   begin
     if (stop || !rst)
     begin

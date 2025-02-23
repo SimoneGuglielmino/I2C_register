@@ -27,6 +27,7 @@ module  tt_um_i2c_regf(
   assign uio_out[0] = top_sda;
   assign uio_oe[0] = top_write_enable;
   assign top_scl = clk;
+  assign top_rst = rst_n;
   // Internal signals to connect i2c-slave and registerfile
   wire [7:0] regf_write_data;
   wire [7:0] regf_read_data;
@@ -37,7 +38,7 @@ module  tt_um_i2c_regf(
 
   assign uo_out = out_reg_array;
   // List all unused inputs to prevent warnings
-  wire _unused = &{ena, 1'b0};
+  wire _unused = &{ena, 1'b0, ui_in, uo_out,uio_in[7:1],uio_out[7:1],uio_oe[7:1]};
 
   // Instantiate i2c_slave_controller
   i2c_slave_controller #(

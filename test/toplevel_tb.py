@@ -25,7 +25,7 @@ class toplevel_test():
     async def run_test(self):
         # Dictionary to represent the current state of the regsiterfile
         regf_reference = dict()
-        transaction = rand_transaction(_DATA_WIDTH,_ADDR_WIDTH)
+        transaction = rand_transaction(_ADDR_WIDTH,_DATA_WIDTH)
         self.randomize()
 
         i2c_driver = i2c_if_driver(scl_period   = 4,

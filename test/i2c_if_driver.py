@@ -91,7 +91,7 @@ class i2c_if_driver():
                 assert self.sda_enable.value.binstr == '1', f"Expected DUT to enable sda outputdriver to send DATA"
             except AssertionError as msg:
                cocotb.log.info(msg) 
-            data[n] = int(self.sda_in.value.binstr)
+            data[n] = int(self.sda_out.value.binstr)
         # Check the slave ack
         await self.send_ack()
         cocotb.log.info(f"I2C Driver recieved slave-data: {hex(data.integer)}")

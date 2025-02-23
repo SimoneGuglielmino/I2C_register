@@ -34,7 +34,6 @@ module  tt_um_i2c_regf(
   wire [7:0] out_reg_array;
   wire regf_req;
   wire regf_rw;
-  wire regf_ack;
 
   assign uo_out = out_reg_array;
   // List all unused inputs to prevent warnings

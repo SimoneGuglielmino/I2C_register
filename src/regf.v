@@ -55,15 +55,11 @@ localparam IDLE_TRANSACTION     = 1; // Wait for read/write access
 // internal registers to drive the outputs
 reg[7:0] out_reg = 0;
 reg[7:0] regf_read_data;
-reg regf_ack;
 reg[_REGF_LENGTH:0] reg_array;
 // Drive the outputs
 assign out_regf_read_data = regf_read_data;
 assign out_reg_array = out_reg;
-initial begin
-    regf_ack = 0;
-    regf_read_data = 0;
-end
+
 
 // State variable 
 reg[7:0] state = 0;

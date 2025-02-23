@@ -69,7 +69,6 @@ reg[ADDR_WIDTH-1:0] reg_pointer = 0;
 
 always @(posedge regf_req or negedge rst) begin
     if(!rst) begin
-        regf_ack <= 0;
         regf_read_data <= 0;
     end else begin
         regf_read_data <= reg_array[reg_pointer*DATA_WIDTH +: DATA_WIDTH];

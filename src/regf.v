@@ -77,8 +77,8 @@ always @(posedge regf_req or negedge regf_req or negedge rst) begin
     if(!rst) begin
         regf_ack <= 0;
         regf_read_data <= 0;
-    end else begin
-        if (regf_req) begin
+    end else if (regf_req) begin
+            regf_read_data <= reg_array[reg_pointer*DATA_WIDTH +: DATA_WIDTH];
             case(state)
                 IDLE: begin
                     if (regf_rw == 0) begin
@@ -99,8 +99,8 @@ always @(posedge regf_req or negedge regf_req or negedge rst) begin
                     end
                 end
             endcase
-        end else begin
-            regf_read_data <= regf_read_data;
+    end else begin
+            regf_read_data <= reg_array[reg_pointer*DATA_WIDTH +: DATA_WIDTH];
             case(state)
                 IDLE_TRANSACTION: begin
                     regf_ack <= 0;
@@ -109,7 +109,6 @@ always @(posedge regf_req or negedge regf_req or negedge rst) begin
                     regf_ack <= 0;
                 end
             endcase
-        end
     end
 end
 

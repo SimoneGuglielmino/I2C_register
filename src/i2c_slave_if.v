@@ -127,24 +127,25 @@ module i2c_slave_controller #(
       ack_recieved <= 0;
       addr <= 0;
       regf_data_in <= 0;
+    end else begin
+      case(state)
+        IDLE: begin
+          ack_recieved <= 0;
+        end
+        READ_ADDR: begin
+          addr[counter] <= sda;
+        end
+              
+        READ_DATA: begin
+          regf_data_in[counter] <= sda;
+        end
+        GET_WRITE_ACK: begin
+          if (sda == 0) begin
+            ack_recieved <= 1;
+          end 
+        end
+      endcase
     end
-    case(state)
-      IDLE: begin
-        ack_recieved <= 0;
-      end
-      READ_ADDR: begin
-        addr[counter] <= sda;
-      end
-            
-      READ_DATA: begin
-        regf_data_in[counter] <= sda;
-      end
-      GET_WRITE_ACK: begin
-        if (sda == 0) begin
-          ack_recieved <= 1;
-        end 
-      end
-    endcase
   end
 
   // Main IF State Machine
@@ -158,95 +159,96 @@ module i2c_slave_controller #(
       write_enable <= 0;
       regf_req <= 0;
       regf_rw <= 0;
-    end
+    end else begin
     
-    begin
-      case(state)
-        IDLE: begin
-          if (start == 1) begin
-            state <= READ_ADDR;
-            counter <= 7;
-          end
-          write_enable <= 0;
-          regf_req <= 0;
-        end
-
-        READ_ADDR: begin
-          write_enable <= 0;    
-          regf_req <= 0;  
-          if (counter == 0) begin
-            // Send the acknowledge
-            sda_out <= 0;
-            write_enable <= 1;  
-            // Check the address and answer only if device is addressed
-            if(addr[7:1] == DEVICE_ADDRESS) begin
+      begin
+        case(state)
+          IDLE: begin
+            if (start == 1) begin
+              state <= READ_ADDR;
               counter <= 7;
-              state <= SEND_ADDR_ACK;
-              if(addr[0] == 1) begin 
-              // Hand the request to regf if read
-              regf_rw <= 1;
-              regf_req <= 1;
+            end
+            write_enable <= 0;
+            regf_req <= 0;
+          end
+
+          READ_ADDR: begin
+            write_enable <= 0;    
+            regf_req <= 0;  
+            if (counter == 0) begin
+              // Send the acknowledge
+              sda_out <= 0;
+              write_enable <= 1;  
+              // Check the address and answer only if device is addressed
+              if(addr[7:1] == DEVICE_ADDRESS) begin
+                counter <= 7;
+                state <= SEND_ADDR_ACK;
+                if(addr[0] == 1) begin 
+                // Hand the request to regf if read
+                regf_rw <= 1;
+                regf_req <= 1;
+                end 
+              end else begin
+                // If not device addess do nothing
+                state <= IDLE;
               end 
             end else begin
-              // If not device addess do nothing
-              state <= IDLE;
-            end 
-          end else begin
-            counter <= counter - 1;   
+              counter <= counter - 1;   
+            end
           end
-        end
-        
-        SEND_ADDR_ACK: begin
-          if(addr[0] == 0) begin 
-            // Access is read so we need to free the SDA
+          
+          SEND_ADDR_ACK: begin
+            if(addr[0] == 0) begin 
+              // Access is read so we need to free the SDA
+              write_enable <= 0;
+              state <= READ_DATA;
+            end else begin
+              // Access is write to we need to keep the SDA
+              write_enable <= 1;
+              state <= WRITE_DATA;
+              // set the first bit
+              sda_out <= regf_read_data[counter];
+              counter <= counter - 1;
+            end
+          end
+          
+          READ_DATA: begin
             write_enable <= 0;
-            state <= READ_DATA;
-          end else begin
-            // Access is write to we need to keep the SDA
+            if(counter == 0) begin
+              // Send ACK over SDA
+              sda_out <= 0;
+              write_enable <= 1;
+              // Request to regf
+              regf_rw <= 0;
+              regf_req <= 1;
+              // Change States
+              state <= SEND_READ_ACK;
+            end else counter <= counter - 1;
+          end
+          
+          WRITE_DATA: begin
             write_enable <= 1;
-            state <= WRITE_DATA;
-            // set the first bit
             sda_out <= regf_read_data[counter];
-            counter <= counter - 1;
+            if(counter == 0) begin
+              // Here we could wait for the I2C Ack
+              // End req to regf
+              regf_req <= 0;
+              //Change State
+              state <= GET_WRITE_ACK;
+            end else counter <= counter - 1;
           end
-        end
-        
-        READ_DATA: begin
-          write_enable <= 0;
-          if(counter == 0) begin
-            // Send ACK over SDA
-            sda_out <= 0;
-            write_enable <= 1;
-            // Request to regf
-            regf_rw <= 0;
-            regf_req <= 1;
-            // Change States
-            state <= SEND_READ_ACK;
-          end else counter <= counter - 1;
-        end
-        
-        WRITE_DATA: begin
-          write_enable <= 1;
-          sda_out <= regf_read_data[counter];
-          if(counter == 0) begin
-            // Here we could wait for the I2C Ack
-            // End req to regf
-            regf_req <= 0;
-            //Change State
-            state <= GET_WRITE_ACK;
-          end else counter <= counter - 1;
-        end
-        SEND_READ_ACK: begin
-          write_enable <= 0;
-          state <= IDLE;
-        end 
-        GET_WRITE_ACK: begin
-          write_enable <= 0;
-          if (ack_recieved == 1) begin
-            state <= IDLE;  
+          SEND_READ_ACK: begin
+            write_enable <= 0;
+            state <= IDLE;
+          end 
+          GET_WRITE_ACK: begin
+            write_enable <= 0;
+            if (ack_recieved == 1) begin
+              state <= IDLE;  
+            end
           end
-        end
-      endcase
+        endcase
+      end
     end
   end
 endmodule

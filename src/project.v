@@ -62,6 +62,7 @@ module  tt_um_i2c_regf(
       .DATA_WIDTH(DATA_WIDTH),
       .ADDR_WIDTH(ADDR_WIDTH)
   ) reg_file (
+      .rst(rst_n),
       .regf_write_data(regf_write_data),
       .out_regf_read_data(regf_read_data),
       .regf_req(regf_req),

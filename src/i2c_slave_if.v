@@ -123,7 +123,7 @@ module i2c_slave_controller #(
   // I2C Driver 
   // Process to drive the sda line when the slave accesses the sda line
   always @(negedge rst or posedge scl) begin
-    if (stop || !rst) begin
+    if (!rst) begin
       ack_recieved <= 0;
       addr <= 0;
       regf_data_in <= 0;
@@ -151,7 +151,7 @@ module i2c_slave_controller #(
   // Main IF State Machine
   always @(negedge rst or negedge scl)
   begin
-    if (stop || !rst)
+    if (!rst)
     begin
       // Reset Signals on RST
       state <= IDLE;

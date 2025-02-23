@@ -31,6 +31,8 @@ class i2c_if_driver():
     async def start_driver(self):
         # This function starts the clock on SCL and forces both SDA and SCL high.
         self.rst.value = 0
+        await Timer(self._scl_period,"ns")
+        self.rst.value = 1
         self.sda_in.value = 1
         cocotb.log.debug("I2C Driver creating Clock on scl")
         self.scl_clk_handle = cocotb.start_soon(self.scl_clk.start())

@@ -81,7 +81,7 @@ module i2c_slave_controller #(
   // Start detector
   reg   start;
   reg     start_resetter;
-  wire    start_rst = rst | start_resetter;
+  wire    start_rst = !rst | start_resetter;
 
   always @ (posedge start_rst or negedge sda) 
   begin
@@ -91,7 +91,7 @@ module i2c_slave_controller #(
       start <= scl;
   end
 
-  always @ (posedge rst or posedge scl)
+  always @ (negedge rst or posedge scl)
   begin
     if (!rst)
       start_resetter <= 1'b0;
@@ -102,7 +102,7 @@ module i2c_slave_controller #(
   // Stop detector
   reg     stop;
   reg   stop_resetter;
-  wire  stop_rst = rst | stop_resetter;
+  wire  stop_rst = !rst | stop_resetter;
 
   always @ (posedge stop_rst or posedge sda)
   begin
@@ -112,7 +112,7 @@ module i2c_slave_controller #(
       stop <= scl;
   end
 
-  always @ (posedge rst or posedge scl)
+  always @ (negedge rst or posedge scl)
   begin   
     if (!rst)
       stop_resetter <= 1'b0;
@@ -122,8 +122,16 @@ module i2c_slave_controller #(
 
   // I2C Driver 
   // Process to drive the sda line when the slave accesses the sda line
-  always @(posedge scl) begin
+  always @(negedge rst or posedge scl) begin
+    if (stop || !rst) begin
+      ack_recieved <= 0;
+      addr <= 0;
+      regf_data_in <= 0;
+    end
     case(state)
+      IDLE: begin
+        ack_recieved <= 0;
+      end
       READ_ADDR: begin
         addr[counter] <= sda;
       end
@@ -162,7 +170,6 @@ module i2c_slave_controller #(
           end
           write_enable <= 0;
           regf_req <= 0;
-          ack_recieved <= 0;
         end
 
         READ_ADDR: begin
@@ -179,7 +186,7 @@ module i2c_slave_controller #(
               if(addr[0] == 1) begin 
               // Hand the request to regf if read
               regf_rw <= 1;
-            regf_req <= 1;
+              regf_req <= 1;
               end 
             end else begin
               // If not device addess do nothing

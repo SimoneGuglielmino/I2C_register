@@ -100,6 +100,7 @@ always @(posedge regf_req or negedge regf_req or negedge rst) begin
                 end
             endcase
         end else begin
+            regf_read_data <= regf_read_data;
             case(state)
                 IDLE_TRANSACTION: begin
                     regf_ack <= 0;

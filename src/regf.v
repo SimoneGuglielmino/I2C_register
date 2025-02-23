@@ -43,7 +43,6 @@ module reg_file #(
 	output wire [7:0] out_regf_read_data,
 	input regf_req,
 	input regf_rw,
-	output wire out_regf_ack,
   // Registerfile
   output wire[7:0] out_reg_array
 );
@@ -59,7 +58,6 @@ reg[7:0] regf_read_data;
 reg regf_ack;
 reg[_REGF_LENGTH:0] reg_array;
 // Drive the outputs
-assign out_regf_ack = regf_ack;
 assign out_regf_read_data = regf_read_data;
 assign out_reg_array = out_reg;
 initial begin
@@ -73,7 +71,7 @@ reg[7:0] state = 0;
 reg[ADDR_WIDTH-1:0] reg_pointer = 0;
 
 
-always @(posedge regf_req or negedge regf_req or negedge rst) begin
+always @(posedge regf_req or negedge rst) begin
     if(!rst) begin
         regf_ack <= 0;
         regf_read_data <= 0;
@@ -84,28 +82,14 @@ always @(posedge regf_req or negedge regf_req or negedge rst) begin
                 IDLE: begin
                     if (regf_rw == 0) begin
                         reg_pointer <= regf_write_data[ADDR_WIDTH-1:0];
-                        regf_ack <= 1;
                         state <= IDLE_TRANSACTION;
                     end
                 end
                 IDLE_TRANSACTION: begin
                     if (regf_rw == 0) begin
                         reg_array[reg_pointer*DATA_WIDTH +: DATA_WIDTH] <= regf_write_data;
-                        regf_ack <= 0;
-                        state <= IDLE;
-                    end else begin
-                        regf_ack <= 1;
-                        state <= IDLE;
-                    end
-                end
-            endcase
-        end else begin
-            case(state)
-                IDLE_TRANSACTION: begin
-                    regf_ack <= 0;
-                end
-                IDLE: begin
-                    regf_ack <= 0;
+                    end 
+                    state <= IDLE;
                 end
             endcase
         end

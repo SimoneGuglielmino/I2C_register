@@ -53,7 +53,6 @@ module  tt_um_i2c_regf(
       .out_regf_write_data(regf_write_data),
       .regf_read_data(regf_read_data),
       .out_regf_req(regf_req),
-      .regf_ack(regf_ack),
       .out_regf_rw(regf_rw)
   );
 
@@ -67,7 +66,6 @@ module  tt_um_i2c_regf(
       .out_regf_read_data(regf_read_data),
       .regf_req(regf_req),
       .regf_rw(regf_rw),
-      .out_regf_ack(regf_ack),
       .out_reg_array(out_reg_array)
   );
 

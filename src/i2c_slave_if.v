@@ -45,7 +45,6 @@ module i2c_slave_controller #(
   output wire[7:0] out_regf_write_data,
   output wire out_regf_req,
   output wire out_regf_rw,
-  input regf_ack,
   input [7:0] regf_read_data);
 
   // States 

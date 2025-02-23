@@ -4,7 +4,7 @@
  */
 
 `default_nettype none
-module TT_top (
+module  tt_um_i2c_regf(
     input  wire [7:0] ui_in,    // Dedicated inputs
     output wire [7:0] uo_out,   // Dedicated outputs
     input  wire [7:0] uio_in,   // IOs: Input path
@@ -14,12 +14,6 @@ module TT_top (
     input  wire       clk,      // clock
     input  wire       rst_n     // reset_n - low to reset
 );
-  // Generate waves files.
-  initial
-  begin
-    $dumpfile("sim_build/waves.vcd");
-    $dumpvars (0, TT_top);
-  end
   parameter DEVICE_ADDR = 7'b0101010;
   parameter DATA_WIDTH = 8;
   parameter ADDR_WIDTH = 4;

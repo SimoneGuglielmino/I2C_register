@@ -3,7 +3,7 @@ import cocotb.triggers
 import vsc
 from i2c_common import *
 from i2c_if_driver import i2c_if_driver 
-from tb.regf_driver import regf_driver
+from regf_driver import regf_driver
 
 # Parameters
 _I2C_SLAVE_ADDR_ = int(0b0101010)
@@ -66,20 +66,6 @@ class toplevel_test():
                 cocotb.log.info("----Writing to the Registerfile----")
                 cocotb.log.info(f"Registerfile: writing {hex(transaction.data)} to {hex(transaction.address)}")
                 await protocol_driver.write_register(transaction.data,_I2C_SLAVE_ADDR_,transaction.address)
-class small_test():
-    def __init__(self,dut):
-        self.dut = dut
-    async def run_test(self):
-        i2c_driver = i2c_if_driver(scl_period   = 4,
-                                   scl          = self.dut.clk,
-                                   sda_in       = self.dut.uio_in[0],
-                                   sda_out      = self.dut.uio_out[0],
-                                   sda_enable   = self.dut.uio_oe[0],
-                                   RST          = self.dut.rst_n)
-        await i2c_driver.start_driver()
-        await i2c_driver.send_start()
-        await i2c_driver.send_addr(AccessType.WR,_I2C_SLAVE_ADDR_)
-        await cocotb.triggers.Timer(10,"ns")
 
 @cocotb.test()
 async def test(dut):

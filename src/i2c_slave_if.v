@@ -158,7 +158,6 @@ module i2c_slave_controller #(
       write_enable <= 0;
       regf_req <= 0;
       regf_rw <= 0;
-      ack_recieved <= 0;
     end
     
     begin

@@ -76,7 +76,7 @@ always @(posedge regf_req) begin
     case(state)
         IDLE: begin
             if (regf_rw == 0) begin
-                reg_pointer <= regf_write_data;
+                reg_pointer <= regf_write_data[ADDR_WIDTH-1:0];
                 regf_ack <= 1;
                 state <= IDLE_TRANSACTION;
             end

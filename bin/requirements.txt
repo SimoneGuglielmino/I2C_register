@@ -1,0 +1,10 @@
+# Python dependencies
+cocotb == 1.8.1
+pyuvm == 2.9.1
+pyvsc == 0.8.8.*
+cocotb-coverage == 1.1.0
+constrainedrandom == 1.1.2
+pytest == 8.1
+
+# Visualise coverage
+pyucis-viewer==0.0.4.*

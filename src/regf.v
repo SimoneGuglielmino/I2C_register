@@ -72,38 +72,38 @@ reg[7:0] state = 0;
 reg[ADDR_WIDTH-1:0] reg_pointer = 0;
 
 
-always @(posedge regf_req) begin
-    case(state)
-        IDLE: begin
-            if (regf_rw == 0) begin
-                reg_pointer <= regf_write_data[ADDR_WIDTH-1:0];
-                regf_ack <= 1;
-                state <= IDLE_TRANSACTION;
+always @(posedge regf_req or negedge regf_req) begin
+    if (regf_req) begin
+        case(state)
+            IDLE: begin
+                if (regf_rw == 0) begin
+                    reg_pointer <= regf_write_data[ADDR_WIDTH-1:0];
+                    regf_ack <= 1;
+                    state <= IDLE_TRANSACTION;
+                end
             end
-        end
-        IDLE_TRANSACTION: begin
-            if (regf_rw == 0) begin
-                reg_array[reg_pointer*DATA_WIDTH +: DATA_WIDTH] <= regf_write_data;
+            IDLE_TRANSACTION: begin
+                if (regf_rw == 0) begin
+                    reg_array[reg_pointer*DATA_WIDTH +: DATA_WIDTH] <= regf_write_data;
+                    regf_ack <= 0;
+                    state <= IDLE;
+                end else begin
+                    regf_read_data <= reg_array[reg_pointer*DATA_WIDTH +: DATA_WIDTH];
+                    regf_ack <= 1;
+                    state <= IDLE;
+                end
+            end
+        endcase
+    end else begin
+        case(state)
+            IDLE_TRANSACTION: begin
                 regf_ack <= 0;
-                state <= IDLE;
-            end else begin
-                regf_read_data <=  reg_array[reg_pointer*DATA_WIDTH +: DATA_WIDTH];
-                regf_ack <= 1;
-                state <= IDLE;
             end
-        end
-    endcase 
-end
-
-always @(negedge regf_req) begin
-    case(state)
-        IDLE_TRANSACTION: begin
-            regf_ack <= 0;
-        end
-        IDLE: begin
-            regf_ack <= 0;
-        end
-    endcase
+            IDLE: begin
+                regf_ack <= 0;
+            end
+        endcase
+    end
 end
 
 endmodule

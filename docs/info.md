@@ -9,18 +9,12 @@ You can also include images in this folder and reference them in the markdown. E
 
 ## How it works
 
-Explain how your project works
-
-Async I2C to register file
+Async I2C to register file, shows up as an I2C interface. To be used to configure analog blocks.
 
 ## How to test
 
-Explain how to use your project
-
-Address as I2C pheripheral
+Address as I2C peripheral, write and read words.
 
 ## External hardware
-
-List external hardware used in your project (e.g. PMOD, LED display, etc), if any
 
 LED

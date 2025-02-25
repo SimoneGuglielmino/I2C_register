@@ -70,6 +70,9 @@ reg[ADDR_WIDTH-1:0] reg_pointer = 0;
 always @(posedge regf_req or negedge rst) begin
     if(!rst) begin
         regf_read_data <= 0;
+        state <= 0;
+        reg_array <= 0;
+        reg_pointer <= 0;
     end else begin
         regf_read_data <= reg_array[reg_pointer*DATA_WIDTH +: DATA_WIDTH];
         if (regf_req) begin

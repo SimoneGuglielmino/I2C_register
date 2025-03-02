@@ -58,6 +58,7 @@ class toplevel_test():
                 cocotb.log.info(f"Registerfile: Reading from address: {hex(transaction.address)}")
                 data = await protocol_driver.read_register(_I2C_SLAVE_ADDR_,transaction.address)
                 assert regf_reference[transaction.address] == data.integer , f"register {hex(transaction.address)} was expected to hold {hex(regf_reference[transaction.address])}, held {hex(data.integer)}"
+                assert regf_reference[transaction.address] == self.dut.uo_out.value.integer, f"output was expected to hold {hex(regf_reference[transaction.address])}, held {hex(self.dut.uo_out.value.integer)}"
                 cocotb.log.info(f"Registerfile: got {hex(data.integer)}")
 
 

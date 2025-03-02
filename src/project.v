@@ -14,27 +14,28 @@ module  tt_um_i2c_regf(
     input  wire       clk,      // clock
     input  wire       rst_n     // reset_n - low to reset
 );
+
   parameter DEVICE_ADDR = 7'b0101010;
   parameter DATA_WIDTH = 8;
   parameter ADDR_WIDTH = 4;
   // I2C interface
-  wire top_sda;
+  wire top_sda_in;
+  wire top_sda_out;
   wire top_scl;
   wire top_rst;
   wire top_write_enable;
   // If write_enable = 1 sda -> output, else sda -> input
-  assign top_sda =(top_write_enable == 1) ? 1'bz : uio_in[0];
-  assign uio_out[0] = top_sda;
+  assign top_sda_in = uio_in[0];
+  assign uio_out[0] = top_sda_out;
   assign uio_oe[0] = top_write_enable;
   assign top_scl = clk;
   assign top_rst = rst_n;
   // Internal signals to connect i2c-slave and registerfile
   wire [7:0] regf_write_data;
   wire [7:0] regf_read_data;
-  wire [7:0] out_reg_array;
   wire regf_req;
   wire regf_rw;
-  assign uo_out = out_reg_array;
+  assign uo_out = regf_read_data;
   assign uio_out[7:1] = 0;
   assign uio_oe[7:1] = 0;
   // List all unused inputs to prevent warnings
@@ -46,7 +47,8 @@ module  tt_um_i2c_regf(
       // this address need sot be matched in the i2c-protocoll, when adressing the registerfile
       .DEVICE_ADDRESS(DEVICE_ADDR)
   )i2c_slave_controller(
-      .sda(top_sda),
+      .sda_in(top_sda_in),
+      .sda_out(top_sda_out),
       .scl(top_scl),
       .out_write_enable(top_write_enable),
       .rst(top_rst),
@@ -65,8 +67,7 @@ module  tt_um_i2c_regf(
       .regf_write_data(regf_write_data),
       .out_regf_read_data(regf_read_data),
       .regf_req(regf_req),
-      .regf_rw(regf_rw),
-      .out_reg_array(out_reg_array)
+      .regf_rw(regf_rw)
   );
 
 endmodule

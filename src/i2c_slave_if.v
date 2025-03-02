@@ -38,8 +38,9 @@ module i2c_slave_controller #(
   input rst,
 
   // I2C Interface
-  inout sda,
-  inout scl,
+  input sda_in,
+  input scl,
+  output sda_out,
   output out_write_enable,
   // Register File Interface
   output wire[7:0] out_regf_write_data,
@@ -65,10 +66,10 @@ module i2c_slave_controller #(
   assign out_regf_rw = regf_rw;
 
   // I2C Interface Drivers
-  reg sda_out;
+  reg reg_sda_out;
+  assign sda_out = reg_sda_out;
   reg write_enable = 0;
   assign out_write_enable = write_enable;
-  assign sda = (write_enable == 1) ? sda_out : 1'bz;
   reg ack_recieved = 0;
 
   // State Machine Variables
@@ -82,7 +83,7 @@ module i2c_slave_controller #(
   reg     start_resetter;
   wire    start_rst = !rst | start_resetter;
 
-  always @ (posedge start_rst or negedge sda) 
+  always @ (posedge start_rst or negedge sda_in) 
   begin
     if (start_rst)
       start <= 1'b0;
@@ -103,7 +104,7 @@ module i2c_slave_controller #(
   reg   stop_resetter;
   wire  stop_rst = !rst | stop_resetter;
 
-  always @ (posedge stop_rst or posedge sda)
+  always @ (posedge stop_rst or posedge sda_in)
   begin
     if (stop_rst)
       stop <= 1'b0;
@@ -134,7 +135,7 @@ module i2c_slave_controller #(
           regf_req <= 0;
         end
         READ_ADDR: begin
-          addr[counter] <= sda;
+          addr[counter] <= sda_in;
           regf_req <= 0;
         end
         SEND_ADDR_ACK: begin
@@ -145,7 +146,7 @@ module i2c_slave_controller #(
           end
         end
         READ_DATA: begin
-          regf_data_in[counter] <= sda;
+          regf_data_in[counter] <= sda_in;
         end
         WRITE_DATA: begin
           regf_req <= 0;
@@ -154,7 +155,7 @@ module i2c_slave_controller #(
           regf_req <= 1;
         end
         GET_WRITE_ACK: begin
-          if (sda == 0) begin
+          if (sda_in == 0) begin
             ack_recieved <= 1;
           end 
         end
@@ -172,6 +173,7 @@ module i2c_slave_controller #(
       counter <= 0;
       write_enable <= 0;
       regf_rw <= 0;
+      reg_sda_out <= 0;
     end else begin
     
       begin
@@ -188,7 +190,7 @@ module i2c_slave_controller #(
             write_enable <= 0;
             if (counter == 0) begin
               // Send the acknowledge
-              sda_out <= 0;
+              reg_sda_out <= 0;
               write_enable <= 1;
               // Check the address and answer only if device is addressed
               if(addr[7:1] == DEVICE_ADDRESS) begin
@@ -217,7 +219,7 @@ module i2c_slave_controller #(
               write_enable <= 1;
               state <= WRITE_DATA;
               // set the first bit
-              sda_out <= regf_read_data[counter];
+              reg_sda_out <= regf_read_data[counter];
               counter <= counter - 1;
             end
           end
@@ -226,7 +228,7 @@ module i2c_slave_controller #(
             write_enable <= 0;
             if(counter == 0) begin
               // Send ACK over SDA
-              sda_out <= 0;
+              reg_sda_out <= 0;
               write_enable <= 1;
               // Setup regf access
               regf_rw <= 0;
@@ -237,7 +239,7 @@ module i2c_slave_controller #(
           
           WRITE_DATA: begin
             write_enable <= 1;
-            sda_out <= regf_read_data[counter];
+            reg_sda_out <= regf_read_data[counter];
             if(counter == 0) begin
               // Here we could wait for the I2C Ack
               //Change State

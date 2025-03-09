@@ -7,7 +7,7 @@ from cocotb.handle import Force, Release
 class i2c_if_driver():
     """I2C driver - to drive the interface pins in the testbench"""
     # This driver is designed to drive the I2C protocoll
-    # This includes: 
+    # This includes:
     #       - Transmitting the START condition
     #       - Transmitting the STOP condition
     #       - Transmitting the RESTART condition
@@ -23,7 +23,7 @@ class i2c_if_driver():
         self.sda_in = sda_in
         self.sda_out = sda_out
         self.sda_enable = sda_enable
-        self.rst = RST   
+        self.rst = RST
         self._scl_period = scl_period
         self.scl_clk = Clock(self.scl,self._scl_period,"ns")
 
@@ -47,7 +47,7 @@ class i2c_if_driver():
         self.sda_in.value = 1
         await Timer(0.25*self._scl_period,"ns")
         self.sda_in.value = 0
-        
+
     async def send_restart(self):
         # RESTART is the same as START but during "running" SCL
         await FallingEdge(self.scl)
@@ -82,7 +82,7 @@ class i2c_if_driver():
             await RisingEdge(self.scl)
         # Ckeck the Slave Ack
         await self.recieve_ack()
-    
+
     async def read_data(self):
         # Emtpy byte to write the recvied data into
         data = LogicArray("XXXXXXXX")
@@ -92,7 +92,7 @@ class i2c_if_driver():
             try:
                 assert self.sda_enable.value.binstr == '1', f"Expected DUT to enable sda outputdriver to send DATA"
             except AssertionError as msg:
-               cocotb.log.info(msg) 
+               cocotb.log.info(msg)
             data[n] = int(self.sda_out.value.binstr)
         # Check the slave ack
         await self.send_ack()
@@ -100,7 +100,7 @@ class i2c_if_driver():
         return data
 
     async def send_stop(self):
-    
+
         await FallingEdge(self.scl)
         self.sda_in.value = 0
         await RisingEdge(self.scl)
@@ -134,4 +134,4 @@ class i2c_if_driver():
         self.sda_in.value = 1
         await Timer(time,"ns")
         await self.start_driver()
-        
+

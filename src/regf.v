@@ -39,10 +39,10 @@ module reg_file #(
 )(
     // Interface to the i2c slave
     input rst,
- 	input [7:0] regf_write_data,
-	output wire [7:0] out_regf_read_data,
-	input regf_req,
-	input regf_rw
+    input [7:0] regf_write_data,
+    output wire [7:0] out_regf_read_data,
+    input regf_req,
+    input regf_rw
   // Registerfile
 );
 
@@ -59,7 +59,7 @@ reg[_REGF_LENGTH:0] reg_array;
 assign out_regf_read_data = regf_read_data;
 
 
-// State variable 
+// State variable
 reg[7:0] state = 0;
 // Pointer keep track where to read
 reg[ADDR_WIDTH-1:0] reg_pointer = 0;
@@ -84,7 +84,7 @@ always @(posedge regf_req or negedge rst) begin
                     if (regf_rw == 0) begin
                         reg_array[reg_pointer*DATA_WIDTH +: DATA_WIDTH] <= regf_write_data;
                         regf_read_data <= regf_read_data;
-                    end 
+                    end
                     state <= IDLE;
                 end
             endcase
@@ -93,4 +93,4 @@ always @(posedge regf_req or negedge rst) begin
 end
 
 endmodule
- 
+
